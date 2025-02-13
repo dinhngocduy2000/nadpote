@@ -22,7 +22,7 @@ def create_todo_endpoint(
     db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_active_user)
 ):
-    return create_todo(db, todo)
+    return create_todo(db, todo, current_user.id)
 
 @router.get("/todos/", response_model=list[Todo])
 def read_todos(
@@ -31,7 +31,7 @@ def read_todos(
     db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_active_user)
 ):
-    return get_todos(db, skip, limit)
+    return get_todos(db, current_user.id, skip, limit)
 
 @router.get("/todos/{todo_id}", response_model=Todo)
 def read_todo(
@@ -39,7 +39,7 @@ def read_todo(
     db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_active_user)
 ):
-    db_todo = get_todo(db, todo_id)
+    db_todo = get_todo(db, todo_id, current_user.id)
     if db_todo is None:
         raise HTTPException(status_code=404, detail="Todo not found")
     return db_todo
@@ -47,11 +47,11 @@ def read_todo(
 @router.put("/todos/{todo_id}", response_model=Todo)
 def update_todo_endpoint(
     todo_id: int, 
-    todo_update: TodoUpdate,  # Use a request body instead of a query param
+    todo_update: TodoUpdate,  # Use TodoUpdate schema here
     db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_active_user)
 ):
-    db_todo = update_todo(db, todo_id, todo_update)
+    db_todo = update_todo(db, todo_id, todo_update, current_user.id)
     if db_todo is None:
         raise HTTPException(status_code=404, detail="Todo not found")
     return db_todo
