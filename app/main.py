@@ -1,8 +1,18 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware  # Import CORSMiddleware
 from app.api.v1.endpoints.todo import router as todo_router
 from app.database.session import engine, Base
 
 app = FastAPI()
+
+# CORS Configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 # Create the database tables
 Base.metadata.create_all(bind=engine)
