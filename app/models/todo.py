@@ -10,6 +10,6 @@ class Todo(Base):
     title = Column(String, index=True)
     completed = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey("users.id"))  # Link to User
-
+    description=Column(String, index=True)
      # Relationship to the User model
     user = relationship("User", back_populates="todos")

@@ -11,7 +11,7 @@ def get_todos(db: Session, user_id: int, skip: int = 0, limit: int = 10):
 
 
 def create_todo(db: Session, todo: TodoCreate, user_id: int):
-    db_todo = Todo(**todo.model_dump(), user_id=user_id)  # Assign user ID
+    db_todo = Todo(**todo.dict(), user_id=user_id)  # Assign user ID
     db.add(db_todo)
     db.commit()
     db.refresh(db_todo)
