@@ -16,7 +16,6 @@ app.add_middleware(
 )
 
 # Create the database tables
-Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 # Include the router
