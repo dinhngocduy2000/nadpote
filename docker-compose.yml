@@ -5,7 +5,7 @@ services:
     build: .
     container_name: fastapi-app
     environment:
-      - DATABASE_URL=sqlite:///./test.db # SQLite database file
+      - DATABASE_URL=sqlite:///./todo.db # SQLite database file
     ports:
       - "8000:8000"
     volumes:
