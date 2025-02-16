@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: fastapi-app
+    environment:
+      - DATABASE_URL=sqlite:///./test.db # SQLite database file
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app # Mount the app directory to persist changes during development
+    depends_on:
+      - db
+
+  db:
+    image: nouchka/sqlite3
+    container_name: sqlite-db
+    volumes:
+      - ./data:/data # Persist SQLite data
+    restart: always
