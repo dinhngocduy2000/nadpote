@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 class TodoUpdate(BaseModel):
     title: Optional[str] = None  # Allow updating title, but it's optional
+    description:Optional[str]= None
     completed: Optional[bool] = None  # Allow updating completion status
 
     class Config:
@@ -16,7 +17,7 @@ class TodoCreate(TodoBase):
     pass
 
 class Todo(TodoBase):
-    id: int
+    id: str
 
     class Config:
         orm_mode = True
