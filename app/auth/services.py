@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from sqlite3 import IntegrityError
 from typing import Optional
+from dotenv import load_dotenv
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
@@ -9,8 +10,13 @@ from pytest import Session
 from app.auth.schemas import TokenData, User, UserCreate
 from app.database.session import SessionLocal
 from app.models.user import User as User2
+
+import os
+
+load_dotenv()
+
 # Configuration 
-SECRET_KEY = "your-secret-key"  # Replace with a secure secret key
+SECRET_KEY = os.getenv("SECRET_KEY")  # Replace with a secure secret key
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
