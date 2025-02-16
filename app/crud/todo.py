@@ -3,7 +3,7 @@ from fastapi import Query
 from sqlalchemy.orm import Session
 from app.models.todo import Todo
 from app.schemas.todo import TodoCreate, TodoUpdate
-
+from sqlalchemy import asc, desc
 
 #  get a single todo
 def get_todo(db: Session, todo_id: int, user_id: int):
@@ -17,18 +17,32 @@ def get_todos(
     skip: int = 0,
     limit: int = 10,
     completed: Optional[bool] = Query(None),
-    title:Optional[str]=Query(None)
+    title: Optional[str] = Query(None),
+    sort_by: Optional[str] = Query("title"),
+    sort_order: Optional[str] = Query("asc"),
 ):
+    # Define sorting map for fields
+    sort_field_map = {
+        "id": Todo.id,
+        "title": Todo.title,
+        "completed": Todo.completed
+    }
+    sort_field = sort_field_map.get(sort_by,Todo.title)
+
     query = db.query(Todo)
     if completed is not None:
-        query = query.filter(Todo.completed==completed)
+        query = query.filter(Todo.completed == completed)
 
     if title is not None:
-        query=query.filter(Todo.title.ilike(f"%{title}%"))
+        query = query.filter(Todo.title.ilike(f"%{title}%"))
 
-    return (
-       query.filter(Todo.user_id == user_id).offset(skip).limit(limit).all()
-    )
+    if sort_order =="asc":
+        query = query.order_by(asc(sort_field))
+    else:
+        query = query.order_by(desc(sort_field))
+    
+
+    return query.filter(Todo.user_id == user_id).offset(skip).limit(limit).all()
 
 
 # create a todo
