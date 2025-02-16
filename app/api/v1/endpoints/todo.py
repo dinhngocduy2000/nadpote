@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.auth.schemas import User
 from app.auth.services import get_current_active_user
+from app.models.user import User
 from app.schemas.todo import Todo, TodoCreate, TodoUpdate
 from app.crud.todo import get_todos, create_todo, get_todo, update_todo, delete_todo
 from app.database.session import SessionLocal

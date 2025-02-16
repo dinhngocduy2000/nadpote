@@ -1,3 +1,4 @@
+# app/models.py (SQLAlchemy model)
 from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 from app.database.session import Base
@@ -12,5 +13,4 @@ class User(Base):
     hashed_password = Column(String)
     disabled = Column(Boolean, default=False)
 
-    # Relationship with Todo (if needed)
-    todos = relationship("Todo", back_populates="owner")
+    todos = relationship("Todo", back_populates="user")

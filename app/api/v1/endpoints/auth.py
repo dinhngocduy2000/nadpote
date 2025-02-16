@@ -7,12 +7,19 @@ from app.auth.services import (
     create_access_token,
     get_current_active_user,
     ACCESS_TOKEN_EXPIRE_MINUTES,
-    get_db,
+    create_user
 )
-from app.auth.schemas import Token
-from app.models.user import User
+from app.auth.schemas import Token, User, UserCreate
+from app.database.session import SessionLocal
 
 router = APIRouter()
+# Dependency to get the database session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
@@ -35,3 +42,11 @@ async def login_for_access_token(
 @router.get("/users/me/", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
+
+@router.post("/register")
+def register(user_data: UserCreate, db: Session = Depends(get_db)):
+    try:
+        user = create_user(db, user_data)
+        return {"username": user.username, "email": user.email}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

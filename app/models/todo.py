@@ -11,4 +11,5 @@ class Todo(Base):
     completed = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey("users.id"))  # Link to User
 
-    owner = relationship("User", back_populates="todos")  # Relationship
+     # Relationship to the User model
+    user = relationship("User", back_populates="todos")
