@@ -31,9 +31,10 @@ def read_todos(
     limit: int = 10, 
     db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_active_user),
-    completed:Optional[bool] = Query(None)
+    completed:Optional[bool] = Query(None),
+    title:Optional[str] = Query(None)
 ):
-    return get_todos(db, current_user.id, skip, limit,completed)
+    return get_todos(db, current_user.id, skip, limit,completed,title)
 
 @router.get("/todos/{todo_id}", response_model=Todo)
 def read_todo(

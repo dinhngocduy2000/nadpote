@@ -17,10 +17,14 @@ def get_todos(
     skip: int = 0,
     limit: int = 10,
     completed: Optional[bool] = Query(None),
+    title:Optional[str]=Query(None)
 ):
     query = db.query(Todo)
     if completed is not None:
         query = query.filter(Todo.completed==completed)
+
+    if title is not None:
+        query=query.filter(Todo.title.ilike(f"%{title}%"))
 
     return (
        query.filter(Todo.user_id == user_id).offset(skip).limit(limit).all()
