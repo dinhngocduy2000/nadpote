@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.auth.services import get_current_active_user
 from app.models.user import User
@@ -29,9 +30,10 @@ def read_todos(
     skip: int = 0, 
     limit: int = 10, 
     db: Session = Depends(get_db), 
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
+    completed:Optional[bool] = Query(None)
 ):
-    return get_todos(db, current_user.id, skip, limit)
+    return get_todos(db, current_user.id, skip, limit,completed)
 
 @router.get("/todos/{todo_id}", response_model=Todo)
 def read_todo(
