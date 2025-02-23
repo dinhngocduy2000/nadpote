@@ -56,13 +56,13 @@ def read_todo(
     return db_todo
 
 
-@router.put("/todos/{todo_id}", response_model=Todo)
+@router.put("/todos/{todo_id}", response_model=Optional[Todo])
 def update_todo_endpoint(
     todo_id: str,
     todo_update: TodoUpdate,  # Use TodoUpdate schema here
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
-):
+) -> Optional[Todo]:
     db_todo = update_todo(db, todo_id, todo_update, current_user.id)
     if db_todo is None:
         raise HTTPException(status_code=404, detail="Todo not found")
