@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import List, Optional
 from fastapi import Query
 from sqlalchemy.orm import Session
 from app.models.todo import Todo
-from app.schemas.todo import TodoCreate, TodoUpdate
+from app.schemas.todo import TodoCreate, TodoUpdate, TodoQuery
 from sqlalchemy import asc, desc
 
 from app.tools.exception import exception_handler
@@ -20,30 +20,26 @@ def get_todo(db: Session, todo_id: int, user_id: int):
 def get_todos(
     db: Session,
     user_id: int,
-    skip: int = 0,
-    limit: int = 10,
-    completed: Optional[bool] = Query(None),
-    title: Optional[str] = Query(None),
-    sort_by: Optional[str] = Query("title"),
-    sort_order: Optional[str] = Query("asc"),
-):
+    input: TodoQuery
+) -> List[Todo]:
     # Define sorting map for fields
-    sort_field_map = {"id": Todo.id, "title": Todo.title, "completed": Todo.completed}
-    sort_field = sort_field_map.get(sort_by, Todo.title)
+    sort_field_map = {"id": Todo.id,
+                      "title": Todo.title, "completed": Todo.completed}
+    sort_field = sort_field_map.get(input.sort_by, Todo.title)
 
     query = db.query(Todo)
-    if completed is not None:
-        query = query.filter(Todo.completed == completed)
+    if input.completed is not None:
+        query = query.filter(Todo.completed == input.completed)
 
-    if title is not None:
-        query = query.filter(Todo.title.ilike(f"%{title}%"))
+    if input.title is not None:
+        query = query.filter(Todo.title.ilike(f"%{input.title}%"))
 
-    if sort_order == "asc":
+    if input.sort_order == "asc":
         query = query.order_by(asc(sort_field))
     else:
         query = query.order_by(desc(sort_field))
 
-    return query.filter(Todo.user_id == user_id).offset(skip).limit(limit).all()
+    return query.filter(Todo.user_id == user_id).offset(input.skip).limit(input.limit).all()
 
 
 # create a todo
@@ -61,7 +57,8 @@ def create_todo(db: Session, todo: TodoCreate, user_id: int):
 def update_todo(
     db: Session, todo_id: int, todo_update: TodoUpdate, user_id: int
 ) -> Optional[Todo]:
-    db_todo = db.query(Todo).filter(Todo.id == todo_id, Todo.user_id == user_id).first()
+    db_todo = db.query(Todo).filter(Todo.id == todo_id,
+                                    Todo.user_id == user_id).first()
 
     if db_todo:
         for key, value in todo_update.dict().items():
@@ -74,7 +71,8 @@ def update_todo(
 # delete a todo
 @exception_handler
 def delete_todo(db: Session, todo_id: int, user_id: int):
-    db_todo = db.query(Todo).filter(Todo.id == todo_id, Todo.user_id == user_id).first()
+    db_todo = db.query(Todo).filter(Todo.id == todo_id,
+                                    Todo.user_id == user_id).first()
     if db_todo:
         db.delete(db_todo)
         db.commit()

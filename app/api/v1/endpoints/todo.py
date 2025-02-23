@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.auth.services import get_current_active_user
 from app.models.user import User
-from app.schemas.todo import Todo, TodoCreate, TodoUpdate
+from app.schemas.todo import Todo, TodoCreate, TodoUpdate, TodoResponse, TodoQuery
 from app.crud.todo import get_todos, create_todo, get_todo, update_todo, delete_todo
 from app.database.session import SessionLocal
 
@@ -28,20 +28,15 @@ def create_todo_endpoint(
     return create_todo(db, todo, current_user.id)
 
 
-@router.get("/todos/", response_model=list[Todo])
+@router.get("/todos/", response_model=TodoResponse)
 def read_todos(
-    skip: int = 0,
-    limit: int = 10,
+    input: TodoQuery = Depends(),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
-    completed: Optional[bool] = Query(None),
-    title: Optional[str] = Query(None),
-    sort_by: Optional[str] = Query("title"),
-    sort_order: Optional[str] = Query("asc"),
 ):
-    return get_todos(
-        db, current_user.id, skip, limit, completed, title, sort_by, sort_order
-    )
+    data = get_todos(db, current_user.id, input)
+
+    return TodoResponse(total=0, data=data)
 
 
 @router.get("/todos/{todo_id}", response_model=Todo)
