@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.auth.services import get_current_active_user
 from app.models.user import User
 from app.schemas.todo import Todo, TodoCreate, TodoUpdate, TodoResponse, TodoQuery
-from app.crud.todo import get_todos, create_todo, get_todo, update_todo, delete_todo
+from app.crud.todo import get_todos, create_todo, get_todo, update_todo, delete_todo, count_todos
 from app.database.session import SessionLocal
 
 router = APIRouter()
@@ -35,8 +35,8 @@ def read_todos(
     current_user: User = Depends(get_current_active_user),
 ):
     data = get_todos(db, current_user.id, input)
-
-    return TodoResponse(total=0, data=data)
+    total = count_todos(db, current_user.id, input)
+    return TodoResponse(total=total, data=data)
 
 
 @router.get("/todos/{todo_id}", response_model=Todo)

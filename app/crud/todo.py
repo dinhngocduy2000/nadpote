@@ -41,8 +41,23 @@ def get_todos(
 
     return query.filter(Todo.user_id == user_id).offset(input.skip).limit(input.limit).all()
 
+# get counts todo
+
+
+@exception_handler
+def count_todos(db: Session, user_id: int, input: TodoQuery) -> int:
+    query = db.query(Todo).filter(Todo.user_id == user_id)
+
+    if input.title is not None:
+        query = query.filter(Todo.title.ilike(f"%{input.title}%"))
+    if input.completed is not None:
+        query = query.filter(Todo.completed == input.completed)
+
+    return len(query.all())
 
 # create a todo
+
+
 @exception_handler
 def create_todo(db: Session, todo: TodoCreate, user_id: int):
     db_todo = Todo(**todo.dict(), user_id=user_id)  # Assign user ID
