@@ -5,12 +5,18 @@ from app.models.todo import Todo
 from app.schemas.todo import TodoCreate, TodoUpdate
 from sqlalchemy import asc, desc
 
+from app.tools.exception import exception_handler
+
 #  get a single todo
+
+
+@exception_handler
 def get_todo(db: Session, todo_id: int, user_id: int):
     return db.query(Todo).filter(Todo.id == todo_id, Todo.user_id == user_id).first()
 
 
 # get list of todos
+@exception_handler
 def get_todos(
     db: Session,
     user_id: int,
@@ -27,7 +33,7 @@ def get_todos(
         "title": Todo.title,
         "completed": Todo.completed
     }
-    sort_field = sort_field_map.get(sort_by,Todo.title)
+    sort_field = sort_field_map.get(sort_by, Todo.title)
 
     query = db.query(Todo)
     if completed is not None:
@@ -36,16 +42,16 @@ def get_todos(
     if title is not None:
         query = query.filter(Todo.title.ilike(f"%{title}%"))
 
-    if sort_order =="asc":
+    if sort_order == "asc":
         query = query.order_by(asc(sort_field))
     else:
         query = query.order_by(desc(sort_field))
-    
 
     return query.filter(Todo.user_id == user_id).offset(skip).limit(limit).all()
 
 
 # create a todo
+@exception_handler
 def create_todo(db: Session, todo: TodoCreate, user_id: int):
     db_todo = Todo(**todo.dict(), user_id=user_id)  # Assign user ID
     db.add(db_todo)
@@ -54,9 +60,11 @@ def create_todo(db: Session, todo: TodoCreate, user_id: int):
     return db_todo
 
 
-# update a todo
+# update a to
+@exception_handler
 def update_todo(db: Session, todo_id: int, todo_update: TodoUpdate, user_id: int):
-    db_todo = db.query(Todo).filter(Todo.id == todo_id, Todo.user_id == user_id).first()
+    db_todo = db.query(Todo).filter(Todo.id == todo_id,
+                                    Todo.user_id == user_id).first()
     if db_todo:
         for key, value in todo_update.dict().items():
             setattr(db_todo, key, value)
@@ -66,8 +74,10 @@ def update_todo(db: Session, todo_id: int, todo_update: TodoUpdate, user_id: int
 
 
 # delete a todo
+@exception_handler
 def delete_todo(db: Session, todo_id: int, user_id: int):
-    db_todo = db.query(Todo).filter(Todo.id == todo_id, Todo.user_id == user_id).first()
+    db_todo = db.query(Todo).filter(Todo.id == todo_id,
+                                    Todo.user_id == user_id).first()
     if db_todo:
         db.delete(db_todo)
         db.commit()
