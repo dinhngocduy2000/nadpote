@@ -11,15 +11,18 @@ from app.auth.services import (
 )
 from app.auth.schemas import Token, User, UserCreate
 from app.database.session import SessionLocal
-
+import time
 router = APIRouter()
 # Dependency to get the database session
+
+
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
@@ -37,11 +40,14 @@ async def login_for_access_token(
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    current_timestamp = int(time.time())
+    return {"access_token": access_token, "token_type": "bearer", "expires_at": str(current_timestamp + int(access_token_expires.total_seconds()))}
+
 
 @router.get("/users/me/", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
+
 
 @router.post("/register")
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
